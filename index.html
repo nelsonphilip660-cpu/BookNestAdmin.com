@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#17132e">
+    <title>BookNest | Administrator</title>
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div class="brand-icon">B</div>
+            <h1>BookNest Admin</h1>
+            <p>Sign in to manage your bookstore.</p>
+
+            <form id="loginForm">
+                <label for="adminEmail">Administrator email</label>
+                <input id="adminEmail" type="email" value="nelsonphilip660@gmail.com" required>
+
+                <label for="adminPassword">Password</label>
+                <input id="adminPassword" type="password" placeholder="Enter your password" required>
+
+                <button type="submit" id="loginButton">Sign in</button>
+                <p id="loginMessage" class="message"></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard" class="dashboard hidden">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">B</span>
+                <span>BookNest</span>
+            </div>
+
+            <nav>
+                <button class="nav-link active" data-section="overview">Overview</button>
+                <button class="nav-link" data-section="books">Manage Books</button>
+                <button class="nav-link" data-section="addBook">Upload Book</button>
+                <button class="nav-link" data-section="orders">Customer Orders</button>
+            </nav>
+
+            <button id="logoutButton" class="logout-button">Log out</button>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">BOOKNEST MANAGEMENT</p>
+                    <h1 id="pageTitle">Overview</h1>
+                </div>
+                <div class="admin-profile">
+                    <span class="profile-dot"></span>
+                    <span>Administrator</span>
+                </div>
+            </header>
+
+            <div id="notice" class="notice hidden"></div>
+
+            <section id="overviewSection" class="page-section">
+                <div class="welcome-panel">
+                    <div>
+                        <p>Welcome back, Nelson!</p>
+                        <h2>Manage your digital bookstore.</h2>
+                        <span>Books, orders and transfer payments in one place.</span>
+                    </div>
+                    <div class="welcome-symbol">📚</div>
+                </div>
+
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <span>Total books</span>
+                        <strong id="totalBooks">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Active books</span>
+                        <strong id="activeBooks">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Total orders</span>
+                        <strong id="totalOrders">0</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Pending payments</span>
+                        <strong id="pendingOrders">0</strong>
+                    </article>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Recent orders</h2>
+                            <p>Latest customer purchases.</p>
+                        </div>
+                        <button class="secondary-button" data-go="orders">
+                            View all orders
+                        </button>
+                    </div>
+                    <div id="recentOrders" class="table-wrap">
+                        <p class="empty-state">Loading orders...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="booksSection" class="page-section hidden">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Your book catalogue</h2>
+                            <p>Edit prices, details and availability.</p>
+                        </div>
+                        <button class="primary-button" data-go="addBook">
+                            + Upload book
+                        </button>
+                    </div>
+
+                    <input id="bookSearch" class="search-input" type="search"
+                        placeholder="Search books by title or author...">
+
+                    <div id="booksList" class="book-list">
+                        <p class="empty-state">Loading books...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="addBookSection" class="page-section hidden">
+                <div class="panel form-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2 id="bookFormTitle">Upload a new book</h2>
+                            <p>Add a book to your customer-facing bookstore.</p>
+                        </div>
+                    </div>
+
+                    <form id="bookForm">
+                        <input type="hidden" id="editingBookId">
+
+                        <label for="bookTitle">Book title *</label>
+                        <input id="bookTitle" type="text" maxlength="200" placeholder="Enter book title" required>
+
+                        <label for="bookAuthor">Author</label>
+                        <input id="bookAuthor" type="text" placeholder="Enter author's name">
+
+                        <label for="bookCategory">Category *</label>
+                        <select id="bookCategory" required>
+                            <option value="Education">Education</option>
+                            <option value="Stories & Novels">Stories & Novels</option>
+                            <option value="History">History</option>
+                            <option value="Documents">Documents</option>
+                            <option value="Business">Business</option>
+                        </select>
+
+                        <label for="bookPrice">Price in Naira (₦) *</label>
+                        <input id="bookPrice" type="number" min="0" max="100000000" step="1" placeholder="e.g. 2500"
+                            required>
+
+                        <label for="bookDescription">Description</label>
+                        <textarea id="bookDescription" rows="4" placeholder="Describe this book"></textarea>
+
+                        <div id="uploadFiles">
+                            <label for="bookCover">Book cover image * (JPG, PNG or WebP)</label>
+                            <input id="bookCover" type="file" accept="image/jpeg,image/png,image/webp">
+
+                            <label for="bookPdf">Book PDF * (maximum 50 MB)</label>
+                            <input id="bookPdf" type="file" accept="application/pdf">
+                            <p class="file-note">
+                                The PDF will be stored privately. Customers cannot access
+                                it until you approve their payment.
+                            </p>
+                        </div>
+
+                        <button id="saveBookButton" class="primary-button" type="submit">
+                            Upload book
+                        </button>
+                        <button id="cancelEditButton" class="secondary-button hidden" type="button">Cancel
+                            editing</button>
+
+                        <p id="bookMessage" class="message"></p>
+                    </form>
+                </div>
+            </section>
+
+            <section id="ordersSection" class="page-section hidden">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Customer orders</h2>
+                            <p>Review transfer receipts and payment status.</p>
+                        </div>
+                        <button id="refreshOrders" class="secondary-button">
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div class="filter-row">
+                        <label for="orderFilter">Filter orders</label>
+                        <select id="orderFilter">
+                            <option value="all">All orders</option>
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div id="ordersList" class="orders-list">
+                        <p class="empty-state">Loading orders...</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="dashboard-footer">
+                BookNest Administrator Panel · Manage your bookstore securely.
+            </footer>
+        </main>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>
